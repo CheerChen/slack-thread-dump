@@ -258,7 +258,7 @@ OPTIONS:
     -f, --format FORMAT      输出格式: text, markdown (默认: text)
     -t, --token TOKEN        Slack User Token (或使用 $SLACK_TOKEN)
     --download-files         下载附件文件到本地
-    --include-bots           包含 bot 消息 (默认过滤)
+    
     --raw                    保留原始 mrkdwn 格式不转换
     -v, --verbose            显示详细进度
     -h, --help               显示帮助
@@ -426,7 +426,7 @@ slack-thread-dump -o conversation.md -f markdown "<thread_url>"
 slack-thread-dump -v "<thread_url>"
 
 # 包含 bot 消息
-slack-thread-dump --include-bots "<thread_url>"
+slack-thread-dump "<thread_url>"
 
 # 下载附件
 slack-thread-dump --download-files "<thread_url>"

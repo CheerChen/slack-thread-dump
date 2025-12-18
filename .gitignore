@@ -1,0 +1,27 @@
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+node_modules
+logs/*
+log/*
+
+dist
+dist-hash
+.terraform
+
+.nx-cache/*
+.nx/workspace-data
+
+*.swp
+.DS_Store
+
+*.tmp
+
+# IDE
+.idea/*
+
+# other
+.env
