@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="0.1.0"
+VERSION="0.1.1"
 CONFIG_FILE="${HOME}/.slack-thread-dump/config"
 CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/slack-thread-dump"
 USER_CACHE="${CACHE_DIR}/users.json"

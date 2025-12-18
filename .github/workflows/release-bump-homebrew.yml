@@ -1,0 +1,117 @@
+name: Release: bump Homebrew tap
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag. Leave empty to use the release tag (recommended)."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bump-homebrew-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  bump-tap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${{ inputs.tag || '' }}" ]]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Unexpected tag: $TAG"; exit 1; }
+
+      - name: Compute sha256 for source tarball
+        id: sha
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.tag.outputs.tag }}"
+          URL="https://github.com/${{ github.repository }}/archive/refs/tags/${TAG}.tar.gz"
+          curl -fsSL "$URL" -o /tmp/src.tgz
+          SHA=$(sha256sum /tmp/src.tgz | awk '{print $1}')
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tap repo
+        uses: actions/checkout@v4
+        with:
+          repository: CheerChen/homebrew-tap
+          path: tap
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+
+      - name: Ensure Formula exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tap/Formula
+          if [[ ! -f tap/Formula/slack-thread-dump.rb ]]; then
+            cat > tap/Formula/slack-thread-dump.rb <<'RUBY'
+class SlackThreadDump < Formula
+  desc "Export Slack threads to text or Markdown"
+  homepage "https://github.com/CheerChen/slack-thread-dump"
+  url "REPLACE_ME"
+  sha256 "REPLACE_ME"
+  license "MIT"
+
+  depends_on "jq"
+
+  def install
+    bin.install "slack-thread-dump.sh" => "slack-thread-dump"
+  end
+
+  test do
+    assert_match "slack-thread-dump version", shell_output("#{bin}/slack-thread-dump --version")
+  end
+end
+RUBY
+          fi
+
+      - name: Update Formula/slack-thread-dump.rb
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="${{ steps.sha.outputs.url }}"
+          SHA="${{ steps.sha.outputs.sha256 }}"
+
+          FILE="tap/Formula/slack-thread-dump.rb"
+          ruby -i -pe "
+            $_.gsub!(/^(\s*url\s+)\".*\"\s*$/, "\\1\"#{ENV['URL']}\"");
+            $_.gsub!(/^(\s*sha256\s+)\"([0-9a-f]{64}|REPLACE_ME)\"\s*$/, "\\1\"#{ENV['SHA']}\"");
+          " "$FILE" URL="$URL" SHA="$SHA"
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git add Formula/slack-thread-dump.rb
+          git commit -m "slack-thread-dump: bump to ${{ steps.tag.outputs.tag }}"
+          git push
