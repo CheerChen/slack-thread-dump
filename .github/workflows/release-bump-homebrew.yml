@@ -80,9 +80,7 @@ jobs:
 
           FILE="tap/Formula/slack-thread-dump.rb"
 
-          sed -i.bak -E "s|^\s*url\s+\".*\"\s*$|  url \"${URL}\"|" "$FILE"
-          sed -i.bak -E "s|^\s*sha256\s+\"([0-9a-f]{64}|REPLACE_ME)\"\s*$|  sha256 \"${SHA}\"|" "$FILE"
-          rm -f "${FILE}.bak"
+          python3 -c 'import pathlib,re,sys; p=pathlib.Path(sys.argv[1]); url=sys.argv[2]; sha=sys.argv[3]; s=p.read_text(encoding="utf-8"); s=re.sub(r"^\s*url\s+\".*\"\s*$", f"  url \"{url}\"", s, flags=re.M); s=re.sub(r"^\s*sha256\s+\"([0-9a-f]{64}|REPLACE_ME)\"\s*$", f"  sha256 \"{sha}\"", s, flags=re.M); p.write_text(s, encoding="utf-8")' "$FILE" "$URL" "$SHA"
 
       - name: Commit and push
         shell: bash
