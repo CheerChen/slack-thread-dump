@@ -99,11 +99,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if git diff --quiet; then
+          git add Formula/slack-thread-dump.rb
+
+          if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
-          git add Formula/slack-thread-dump.rb
           git commit -m "slack-thread-dump: bump to ${{ steps.tag.outputs.tag }}"
           git push
