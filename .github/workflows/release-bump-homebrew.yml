@@ -68,25 +68,7 @@ jobs:
           set -euo pipefail
           mkdir -p tap/Formula
           if [[ ! -f tap/Formula/slack-thread-dump.rb ]]; then
-            cat > tap/Formula/slack-thread-dump.rb <<'RUBY'
-            class SlackThreadDump < Formula
-              desc "Export Slack threads to text or Markdown"
-              homepage "https://github.com/CheerChen/slack-thread-dump"
-              url "REPLACE_ME"
-              sha256 "REPLACE_ME"
-              license "MIT"
-
-              depends_on "jq"
-
-              def install
-                bin.install "slack-thread-dump.sh" => "slack-thread-dump"
-              end
-
-              test do
-                assert_match "slack-thread-dump version", shell_output("#{bin}/slack-thread-dump --version")
-              end
-            end
-            RUBY
+            python3 -c 'from pathlib import Path; Path("tap/Formula").mkdir(parents=True, exist_ok=True); Path("tap/Formula/slack-thread-dump.rb").write_text("""class SlackThreadDump < Formula\n  desc \"Export Slack threads to text or Markdown\"\n  homepage \"https://github.com/CheerChen/slack-thread-dump\"\n  url \"REPLACE_ME\"\n  sha256 \"REPLACE_ME\"\n  license \"MIT\"\n\n  depends_on \"jq\"\n\n  def install\n    bin.install \"slack-thread-dump.sh\" => \"slack-thread-dump\"\n  end\n\n  test do\n    assert_match \"slack-thread-dump version\", shell_output(\"#{bin}/slack-thread-dump --version\")\n  end\nend\n""", encoding="utf-8")'
           fi
 
       - name: Update Formula/slack-thread-dump.rb
@@ -97,8 +79,10 @@ jobs:
           SHA="${{ steps.sha.outputs.sha256 }}"
 
           FILE="tap/Formula/slack-thread-dump.rb"
-          perl -0777 -i -pe 's/^\s*url\s+".*"\s*$/  url "'"$ENV{URL}"'"/m; s/^\s*sha256\s+"([0-9a-f]{64}|REPLACE_ME)"\s*$/  sha256 "'"$ENV{SHA}"'"/m' "$FILE" \
-            URL="$URL" SHA="$SHA"
+
+          sed -i.bak -E "s|^\s*url\s+\".*\"\s*$|  url \"${URL}\"|" "$FILE"
+          sed -i.bak -E "s|^\s*sha256\s+\"([0-9a-f]{64}|REPLACE_ME)\"\s*$|  sha256 \"${SHA}\"|" "$FILE"
+          rm -f "${FILE}.bak"
 
       - name: Commit and push
         shell: bash
