@@ -27,11 +27,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -n "${{ inputs.tag || '' }}" ]]; then
-            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          TAG_INPUT="${{ inputs.tag }}"
+          TAG_RELEASE="${{ github.event.release.tag_name }}"
+          TAG="${TAG_INPUT:-$TAG_RELEASE}"
+          if [[ -z "$TAG" ]]; then
+            echo "Tag is empty. Provide inputs.tag or publish a release." >&2
+            exit 1
           fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Validate tag
         shell: bash
@@ -94,10 +97,8 @@ RUBY
           SHA="${{ steps.sha.outputs.sha256 }}"
 
           FILE="tap/Formula/slack-thread-dump.rb"
-          ruby -i -pe "
-            $_.gsub!(/^(\s*url\s+)\".*\"\s*$/, "\\1\"#{ENV['URL']}\"");
-            $_.gsub!(/^(\s*sha256\s+)\"([0-9a-f]{64}|REPLACE_ME)\"\s*$/, "\\1\"#{ENV['SHA']}\"");
-          " "$FILE" URL="$URL" SHA="$SHA"
+          perl -0777 -i -pe 's/^\s*url\s+".*"\s*$/  url "'"$ENV{URL}"'"/m; s/^\s*sha256\s+"([0-9a-f]{64}|REPLACE_ME)"\s*$/  sha256 "'"$ENV{SHA}"'"/m' "$FILE" \
+            URL="$URL" SHA="$SHA"
 
       - name: Commit and push
         shell: bash
