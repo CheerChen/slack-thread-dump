@@ -1,6 +1,6 @@
-name: Release: bump Homebrew tap
+name: "Release: bump Homebrew tap"
 
-on:
+'on':
   release:
     types: [published]
   workflow_dispatch:
@@ -69,24 +69,24 @@ jobs:
           mkdir -p tap/Formula
           if [[ ! -f tap/Formula/slack-thread-dump.rb ]]; then
             cat > tap/Formula/slack-thread-dump.rb <<'RUBY'
-class SlackThreadDump < Formula
-  desc "Export Slack threads to text or Markdown"
-  homepage "https://github.com/CheerChen/slack-thread-dump"
-  url "REPLACE_ME"
-  sha256 "REPLACE_ME"
-  license "MIT"
+            class SlackThreadDump < Formula
+              desc "Export Slack threads to text or Markdown"
+              homepage "https://github.com/CheerChen/slack-thread-dump"
+              url "REPLACE_ME"
+              sha256 "REPLACE_ME"
+              license "MIT"
 
-  depends_on "jq"
+              depends_on "jq"
 
-  def install
-    bin.install "slack-thread-dump.sh" => "slack-thread-dump"
-  end
+              def install
+                bin.install "slack-thread-dump.sh" => "slack-thread-dump"
+              end
 
-  test do
-    assert_match "slack-thread-dump version", shell_output("#{bin}/slack-thread-dump --version")
-  end
-end
-RUBY
+              test do
+                assert_match "slack-thread-dump version", shell_output("#{bin}/slack-thread-dump --version")
+              end
+            end
+            RUBY
           fi
 
       - name: Update Formula/slack-thread-dump.rb
