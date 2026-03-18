@@ -17,6 +17,15 @@ Command-line helper to export a full Slack thread into text or Markdown. It mirr
 
 ## Install
 
+### Homebrew (Recommended)
+
+```bash
+brew tap CheerChen/tap
+brew install slack-thread-dump
+```
+
+Dependencies such as `jq` are handled automatically by Homebrew.
+
 ### Quick copy
 
 ```bash

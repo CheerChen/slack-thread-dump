@@ -14,6 +14,13 @@
 - Slack User Token，至少包含：`channels:history`、`groups:history`、`im:history`、`mpim:history`、`users:read`，如果要下载附件还需要 `files:read`
 
 ## 安装
+### Homebrew（推荐）
+
+```bash
+brew tap CheerChen/tap
+brew install slack-thread-dump
+```
+
 ### 直接复制
 ```bash
 chmod +x slack-thread-dump.sh
