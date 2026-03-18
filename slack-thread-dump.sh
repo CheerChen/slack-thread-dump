@@ -11,7 +11,6 @@ FORMAT="text"
 OUTPUT_FILE=""
 TOKEN_ARG=""
 DOWNLOAD_FILES=0
-INCLUDE_BOTS=0
 RAW_MRKDWN=0
 VERBOSE=0
 THREAD_URL=""
@@ -25,7 +24,6 @@ Options:
   -f, --format FORMAT      Output format: text, markdown (default: text)
   -t, --token TOKEN        Slack User Token (or use $SLACK_TOKEN)
       --download-files     Download attachments to ./attachments
-      --include-bots       Include bot messages (filtered by default)
       --raw                Keep original Slack mrkdwn (skip Markdown tweaks)
   -v, --verbose            Verbose logging
   -h, --help               Show this help
@@ -78,8 +76,6 @@ parse_args() {
         TOKEN_ARG="$2"; shift 2;;
       --download-files)
         DOWNLOAD_FILES=1; shift 1;;
-      --include-bots)
-        INCLUDE_BOTS=1; shift 1;;
       --raw)
         RAW_MRKDWN=1; shift 1;;
       -v|--verbose)
@@ -484,9 +480,6 @@ main() {
   log "Channel: ${CHANNEL_ID}, Thread TS: ${THREAD_TS}"
   local messages
   messages=$(fetch_thread_messages "${CHANNEL_ID}" "${THREAD_TS}")
-  if [ "${INCLUDE_BOTS}" -eq 0 ]; then
-    messages=$(echo "${messages}" | jq '[.[] | select((.bot_id // empty) == "" and (.subtype // "") != "bot_message")]')
-  fi
 
   local first_ts
   first_ts=$(echo "${messages}" | jq -r '.[0].ts // empty')

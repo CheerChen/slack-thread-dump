@@ -5,7 +5,7 @@
 ## 功能
 - 支持新版 `app.slack.com/client/.../thread/...` 链接和归档 `/archives/.../p...` 链接。
 - 输出 text / markdown，可展开 @用户、#频道、链接，必要时把 mrkdwn 转为标准 Markdown。
-- 输出参与者列表，默认过滤 bot（`--include-bots` 可取消）。
+- 输出参与者列表。
 - 附件列表展示，`--download-files` 可下载到本地 `./attachments`。
 - Token 来源：命令行 > `SLACK_TOKEN` 环境变量 > `~/.slack-thread-dump/config`。
 
@@ -36,7 +36,6 @@ Options:
   -f, --format FORMAT      text 或 markdown (默认 text)
   -t, --token TOKEN        Slack User Token (或使用 $SLACK_TOKEN)
       --download-files     下载附件到 ./attachments
-      --include-bots       包含 bot 消息（默认过滤）
       --raw                保留原始 mrkdwn，不做 Markdown 转换
   -v, --verbose            打印更多日志
   -h, --help               查看帮助
@@ -47,7 +46,6 @@ Options:
 ```bash
 slack-thread-dump "https://app.slack.com/client/T.../C.../thread/C...-1234567890.123456"
 slack-thread-dump -f markdown -o conversation.md "<thread_url>"
-SLACK_TOKEN=xoxp-*** slack-thread-dump --include-bots "<thread_url>"
 slack-thread-dump --download-files "<thread_url>"
 ```
 
