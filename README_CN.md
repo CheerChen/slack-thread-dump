@@ -1,5 +1,7 @@
 # slack-thread-dump
 
+> **⚠️ 本项目已合并至 [ctxd](https://github.com/CheerChen/ctxd)，请改用 `ctxd`。此仓库已归档，不再维护。**
+
 一个用 `curl` + `jq` 组合完成的轻量 CLI，用来把指定的 Slack Thread 导出为文本或 Markdown，设计思路类似 `pr-dump`。
 
 ## 功能

@@ -1,5 +1,7 @@
 # slack-thread-dump
 
+> **⚠️ This project has been merged into [ctxd](https://github.com/CheerChen/ctxd). Please use `ctxd` instead. This repository is archived and no longer maintained.**
+
 Command-line helper to export a full Slack thread into text or Markdown. It mirrors the lightweight, pipe-friendly approach of `pr-dump`: rely on `curl` + `jq`, no heavy dependencies.
 
 ## Features
